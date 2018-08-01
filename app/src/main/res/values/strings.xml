@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">BuyList</string>
+    <string name="buy_list">Buy List</string>
+    <string name="favorites_list">Favorites List</string>
 </resources>
