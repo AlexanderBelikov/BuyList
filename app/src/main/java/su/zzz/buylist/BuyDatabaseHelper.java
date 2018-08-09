@@ -8,13 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class BuyDatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "buylist";
     private static final int DB_VERSION = 1;
+    public static final String TABLE_FAVORITES = "FAVORITES";
 
     BuyDatabaseHelper(Context context){
         super(context, DB_NAME, null, DB_VERSION);
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE FAVORITES (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        db.execSQL("CREATE TABLE "+TABLE_FAVORITES+" (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "NAME TEXT, "
                 + "NEED NUMERIC, "
                 + "IMAGE_RESOURCE_ID INTEGER); ");
