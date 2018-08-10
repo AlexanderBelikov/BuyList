@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showProductList(View view) {
-        Intent intent = new Intent(this, FavoritesListActivity.class);
+        Intent intent = new Intent(this, FavoriteListActivity.class);
         startActivity(intent);
     }
 

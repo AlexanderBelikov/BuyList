@@ -27,6 +27,7 @@ public class FavoritesListActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private Cursor cursor;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +40,7 @@ public class FavoritesListActivity extends AppCompatActivity {
         ListView listFavorites = findViewById(R.id.favorites_list);
         SQLiteOpenHelper buyDatabaseHelper = new BuyDatabaseHelper(this);
         try {
-            db = buyDatabaseHelper.getReadableDatabase();
+            db = buyDatabaseHelper.getWritableDatabase();
             cursor = db.query("FAVORITES",
                     new String[]{"_id", "NAME", "NEED"},
                     null,
@@ -65,6 +66,7 @@ public class FavoritesListActivity extends AppCompatActivity {
                 public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
                     Log.i("setViewValue","_id: "+Integer.toString(cursor.getInt(cursor.getColumnIndex("_id")))+" NAME: "+cursor.getString(cursor.getColumnIndex("NAME"))+" NEED: "+cursor.getString(cursor.getColumnIndex("NEED")));
                     final long c_id = cursor.getLong(cursor.getColumnIndex("_id"));
+                    final String f_name = cursor.getString(cursor.getColumnIndex("NAME"));
                     switch (view.getId()) {
                         case R.id.name:
                             ((TextView)view).setText(cursor.getString(columnIndex));
@@ -74,12 +76,23 @@ public class FavoritesListActivity extends AppCompatActivity {
                             ((CheckBox)view).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
                                 @Override
                                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    Log.i("setOnCheckedChange","_id: "+Long.toString(c_id));
+                                    Log.i("onCheckedChanged","NAME: "+f_name+", Cheked: "+Boolean.toString(isChecked));
+
+                                    /*
+                                    ContentValues favoriteValue = new ContentValues();
                                     if (isChecked){
-                                        new UpdateFavoriteTask().execute(c_id, (long) 1);
+                                        favoriteValue.put("NEED", 1);
+                                        //new UpdateFavoriteTask().execute(c_id, (long) 1);
                                     } else {
-                                        new UpdateFavoriteTask().execute(c_id, (long) 0);
+                                        favoriteValue.put("NEED", 0);
+                                        //new UpdateFavoriteTask().execute(c_id, (long) 0);
                                     }
+                                    db.update(BuyDatabaseHelper.TABLE_FAVORITES,
+                                            favoriteValue,
+                                            "_id = ?",
+                                            new String[] {Long.toString(c_id)});
+                                    */
+                                    //requery();
                                 }
                             });
                             return true;
@@ -107,6 +120,7 @@ public class FavoritesListActivity extends AppCompatActivity {
                 }
             });
             listFavorites.setAdapter(listAdapter2);
+            listFavorites.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         } catch (Exception e) {
             Toast toast = Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
             toast.show();
@@ -136,6 +150,21 @@ public class FavoritesListActivity extends AppCompatActivity {
         adapter.changeCursor(newCursor);
         cursor = newCursor;
     }
+
+    private void requery(){
+        Cursor newCursor = db.query("FAVORITES",
+                new String[]{"_id", "NAME", "NEED"},
+                null,
+                null,
+                null,
+                null,
+                null);
+        ListView listFavorites = findViewById(R.id.favorites_list);
+        CursorAdapter adapter = (CursorAdapter)listFavorites.getAdapter();
+        adapter.changeCursor(newCursor);
+        cursor = newCursor;
+    }
+
 
     private class UpdateFavoriteTask extends AsyncTask<Long, Void, Boolean>{
 
