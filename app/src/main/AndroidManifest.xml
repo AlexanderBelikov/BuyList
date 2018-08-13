@@ -19,13 +19,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FavoritesListActivity"
-            android:label="@string/favorites_list"
-            android:parentActivityName=".MainActivity"
-            />
-        <activity
             android:name=".FavoriteListActivity"
-            android:label="@string/favorite_list"
+            android:label="@string/favorites_list"
             android:parentActivityName=".MainActivity"
             />
     </application>

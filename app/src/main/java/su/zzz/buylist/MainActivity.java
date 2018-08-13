@@ -3,14 +3,11 @@ package su.zzz.buylist;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     private SQLiteDatabase db;
@@ -50,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showProductList(View view) {
-        Intent intent = new Intent(this, FavoritesListActivity.class);
+        Intent intent = new Intent(this, FavoriteListActivity.class);
         startActivity(intent);
     }
 
