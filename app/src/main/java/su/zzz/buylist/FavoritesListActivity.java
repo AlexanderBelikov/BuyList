@@ -32,100 +32,74 @@ public class FavoritesListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites_list);
+
+        // Add toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        ListView listFavorites = findViewById(R.id.favorites_list);
+        ListView fListView = findViewById(R.id.favorite_list);
         SQLiteOpenHelper buyDatabaseHelper = new BuyDatabaseHelper(this);
         try {
             db = buyDatabaseHelper.getWritableDatabase();
-            cursor = db.query("FAVORITES",
+            cursor = db.query(BuyDatabaseHelper.TABLE_FAVORITES,
                     new String[]{"_id", "NAME", "NEED"},
                     null,
                     null,
                     null,
                     null,
                     null);
-            FavoriteAdapter listAdapter = new FavoriteAdapter(this,
-                    R.layout.card_favorite,
-                    cursor,
-                    new String[]{"_id", "NEED"},
-                    new int[]{R.id.name, R.id.need},
-                    0);
-            SimpleCursorAdapter listAdapter2 = new SimpleCursorAdapter(this,
-                    R.layout.card_favorite,
-                    cursor,
-                    new String[]{"NAME", "NEED"},
-                    new int[]{R.id.name, R.id.need},
-                    0);
-
-            listAdapter2.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-                @Override
-                public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                    Log.i("setViewValue","_id: "+Integer.toString(cursor.getInt(cursor.getColumnIndex("_id")))+" NAME: "+cursor.getString(cursor.getColumnIndex("NAME"))+" NEED: "+cursor.getString(cursor.getColumnIndex("NEED")));
-                    final long c_id = cursor.getLong(cursor.getColumnIndex("_id"));
-                    final String f_name = cursor.getString(cursor.getColumnIndex("NAME"));
-                    switch (view.getId()) {
-                        case R.id.name:
-                            ((TextView)view).setText(cursor.getString(columnIndex));
-                            return true;
-                        case R.id.need:
-                            ((CheckBox)view).setChecked(cursor.getInt(columnIndex)>0);
-                            ((CheckBox)view).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-                                @Override
-                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    Log.i("onCheckedChanged","NAME: "+f_name+", Cheked: "+Boolean.toString(isChecked));
-
-                                    /*
-                                    ContentValues favoriteValue = new ContentValues();
-                                    if (isChecked){
-                                        favoriteValue.put("NEED", 1);
-                                        //new UpdateFavoriteTask().execute(c_id, (long) 1);
-                                    } else {
-                                        favoriteValue.put("NEED", 0);
-                                        //new UpdateFavoriteTask().execute(c_id, (long) 0);
-                                    }
-                                    db.update(BuyDatabaseHelper.TABLE_FAVORITES,
-                                            favoriteValue,
-                                            "_id = ?",
-                                            new String[] {Long.toString(c_id)});
-                                    */
-                                    //requery();
-                                }
-                            });
-                            return true;
-                    }
-                    return false;
-                        /*
-                    if(view.getId() == R.id.need){
-                        ((CheckBox)view).setChecked(cursor.getInt(cursor.getColumnIndex("NEED"))>0);
-                        CheckBox needCheckBox = (CheckBox)view;
-
-                        needCheckBox.setChecked(cursor.getInt(cursor.getColumnIndex("NEED"))>0);
-
-                        needCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                Log.i("setOnCheckedChange","onCheckedChanged "+Long.toString(cursor.getLong(cursor.getColumnIndex("_id"))));
-                                //int getPosition = (Integer) buttonView.getTag();
-                                //Toast toast = Toast.makeText(view.getContext(), Long.toString(cursor.getLong(cursor.getColumnIndex("NEED"))), Toast.LENGTH_SHORT);
-                                //Toast toast = Toast.makeText(view.getContext(), Integer.toString(getPosition), Toast.LENGTH_SHORT);
-                                //toast.show();
-                            }
-                        });
-                    }
-                    */
-                }
-            });
-            listFavorites.setAdapter(listAdapter2);
-            listFavorites.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         } catch (Exception e) {
             Toast toast = Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
             toast.show();
+            return;
         }
-
+        SimpleCursorAdapter fSimpleCursorAdapter = new SimpleCursorAdapter(this,
+                R.layout.card_favorite,
+                cursor,
+                new String[]{"NAME", "NEED"},
+                new int[]{R.id.name, R.id.need},
+                0);
+        fSimpleCursorAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                switch (view.getId()) {
+                    case R.id.name:
+                        Log.i("setViewValue","NAME: "+cursor.getString(columnIndex));
+                        TextView nameTextView = (TextView)view;
+                        nameTextView.setText(cursor.getString(columnIndex));
+                        return true;
+                    case R.id.need:
+                        CheckBox needCheckBox = (CheckBox)view;
+                        needCheckBox.setOnCheckedChangeListener(null);
+                        needCheckBox.setChecked(cursor.getInt(columnIndex)>0);
+                        final String fName = cursor.getString(cursor.getColumnIndex("NAME"));
+                        final Long fId = cursor.getLong(cursor.getColumnIndex("_id"));
+                        needCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                Log.i("Checked","NAME: "+fName+", isChecked: "+Boolean.toString(isChecked));
+                                ContentValues fValue = new ContentValues();
+                                fValue.put("NEED", isChecked);
+                                try {
+                                    db.update(BuyDatabaseHelper.TABLE_FAVORITES,
+                                            fValue,
+                                            "_id = ?",
+                                            new String[] {Long.toString(fId)});
+                                } catch (Exception e) {
+                                    Toast toast = Toast.makeText(FavoritesListActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
+                                    toast.show();
+                                }
+                            }
+                        });
+                        return true;
+                }
+                return false;
+            }
+        });
+        fListView.setAdapter(fSimpleCursorAdapter);
+        fListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     @Override
@@ -133,76 +107,5 @@ public class FavoritesListActivity extends AppCompatActivity {
         super.onDestroy();
         cursor.close();
         db.close();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Cursor newCursor = db.query("FAVORITES",
-                new String[]{"_id", "NAME", "NEED"},
-                null,
-                null,
-                null,
-                null,
-                null);
-        ListView listFavorites = findViewById(R.id.favorites_list);
-        CursorAdapter adapter = (CursorAdapter)listFavorites.getAdapter();
-        adapter.changeCursor(newCursor);
-        cursor = newCursor;
-    }
-
-    private void requery(){
-        Cursor newCursor = db.query("FAVORITES",
-                new String[]{"_id", "NAME", "NEED"},
-                null,
-                null,
-                null,
-                null,
-                null);
-        ListView listFavorites = findViewById(R.id.favorites_list);
-        CursorAdapter adapter = (CursorAdapter)listFavorites.getAdapter();
-        adapter.changeCursor(newCursor);
-        cursor = newCursor;
-    }
-
-
-    private class UpdateFavoriteTask extends AsyncTask<Long, Void, Boolean>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected Boolean doInBackground(Long... favorite) {
-            Long favoriteId = favorite[0];
-            Long favoriteNeed = favorite[1];
-
-            ContentValues favoriteValue = new ContentValues();
-            favoriteValue.put("NEED", favoriteNeed);
-
-            Log.i("UpdateFavoriteTask","_id: "+Long.toString(favoriteId));
-            SQLiteOpenHelper buyDatabaseHelper = new BuyDatabaseHelper(FavoritesListActivity.this);
-            try {
-                SQLiteDatabase db = buyDatabaseHelper.getWritableDatabase();
-                db.update(BuyDatabaseHelper.TABLE_FAVORITES,
-                        favoriteValue,
-                        "_id = ?",
-                        new String[] {Long.toString(favoriteId)});
-                db.close();
-                //onRestart();
-                return true;
-            } catch (Exception e){
-                Toast toast = Toast.makeText(FavoritesListActivity.this, e.getMessage(), Toast.LENGTH_LONG);
-                toast.show();
-            }
-            return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-        }
-
     }
 }
