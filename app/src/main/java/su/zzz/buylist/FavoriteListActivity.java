@@ -30,8 +30,7 @@ public class FavoriteListActivity extends AppCompatActivity {
         // Add toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ListView fListView = findViewById(R.id.favorite_list);
         SQLiteOpenHelper buyDatabaseHelper = new BuyDatabaseHelper(this);
