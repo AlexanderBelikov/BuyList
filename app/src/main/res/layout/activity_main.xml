@@ -47,6 +47,7 @@
             app:borderWidth="0dp"
             app:layout_anchor="@+id/favorite_list"
             app:layout_anchorGravity="bottom|right"
+            android:onClick="buyFavorite"
             />
 
     </android.support.design.widget.CoordinatorLayout>

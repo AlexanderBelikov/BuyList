@@ -1,5 +1,6 @@
 package su.zzz.buylist;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -122,6 +123,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void buyFavorite(View view) {
+
+        SQLiteOpenHelper buyDatabaseHelper = new BuyDatabaseHelper(this);
+        try {
+            SQLiteDatabase db = buyDatabaseHelper.getReadableDatabase();
+            ContentValues fValue = new ContentValues();
+            fValue.put("NEED", 0);
+            for(Long id: new ArrayList<Long>(checkedArrayList)){
+                db.update(BuyDatabaseHelper.TABLE_FAVORITES,
+                        fValue,
+                        "_id = ?",
+                        new String[] {Long.toString(id)});
+                checkedArrayList.remove(id);
+            }
+            EditMode(true);
+            db.close();
+            LoadFavoriteArray();
+            ListView favoriteList = findViewById(R.id.favorite_list);
+            ArrayAdapter<Favorite> favoriteArrayAdapter = (ArrayAdapter)favoriteList.getAdapter();
+            favoriteArrayAdapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            Toast toast = Toast.makeText(this, "buyFavorite exception: "+e.getMessage(), Toast.LENGTH_LONG);
+            toast.show();
+        }
+    }
+
     private class FavoriteArrayAdapter extends ArrayAdapter<Favorite> {
         private Context mContext;
         private ArrayList<Favorite> fArrayList;
@@ -144,11 +171,13 @@ public class MainActivity extends AppCompatActivity {
             TextView nameView = itemView.findViewById(R.id.name);
             nameView.setText(f.getName());
             CheckBox needView = itemView.findViewById(R.id.need);
-            final String fName = f.getName();
             final Long fId = f.getId();
             if(checkedArrayList.contains(fId)){
                 needView.setOnCheckedChangeListener(null);
                 needView.setChecked(true);
+            } else {
+                needView.setOnCheckedChangeListener(null);
+                needView.setChecked(false);
             }
             needView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
