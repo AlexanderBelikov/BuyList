@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -80,6 +81,7 @@ public class FavoriteListActivity extends AppCompatActivity {
                                             fValue,
                                             "_id = ?",
                                             new String[] {Long.toString(fId)});
+                                    RenewCursor();
                                 } catch (Exception e) {
                                     Toast toast = Toast.makeText(FavoriteListActivity.this, e.getMessage(), Toast.LENGTH_SHORT);
                                     toast.show();
@@ -100,5 +102,25 @@ public class FavoriteListActivity extends AppCompatActivity {
         super.onDestroy();
         cursor.close();
         db.close();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        RenewCursor();
+    }
+
+    private void RenewCursor(){
+        Cursor newCursor = db.query(BuyDatabaseHelper.TABLE_FAVORITES,
+                new String[]{"_id", "NAME", "NEED"},
+                null,
+                null,
+                null,
+                null,
+                null);
+        ListView fListView = findViewById(R.id.favorite_list);
+        SimpleCursorAdapter adapter = (SimpleCursorAdapter) fListView.getAdapter();
+        adapter.changeCursor(newCursor);
+        cursor = newCursor;
     }
 }

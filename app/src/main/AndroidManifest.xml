@@ -20,7 +20,7 @@
         </activity>
         <activity
             android:name=".FavoriteListActivity"
-            android:label="@string/favorites_list"
+            android:label="@string/favorite_list"
             android:parentActivityName=".MainActivity"
             />
     </application>
